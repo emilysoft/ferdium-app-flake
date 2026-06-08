@@ -1,0 +1,39 @@
+name: Auto-update
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # every Monday at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Run update script
+        id: update
+        run: |
+          ./nix/update.sh
+          if git diff --quiet -- nix/package.nix; then
+            echo "No changes detected."
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            VERSION=$(grep 'version =' nix/package.nix | sed 's/.*version = "\(.*\)";/\1/')
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+            echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.update.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nix/package.nix flake.lock
+          git commit -m "chore: update to v${{ steps.update.outputs.version }}"
+          git tag "v${{ steps.update.outputs.version }}"
+          git push origin main --tags

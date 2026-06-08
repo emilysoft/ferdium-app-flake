@@ -1,0 +1,28 @@
+name: Update flake lock
+
+on:
+  schedule:
+    - cron: '0 6 * * 3' # every Wednesday at 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Update flake.lock
+        run: nix flake lock --update-input nixpkgs
+
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "chore: update flake lock"
+          branch: update/flake-lock
+          delete-branch: true
+          title: "chore: update flake lock"
+          body: Automated update of `flake.lock` via `nix flake lock --update-input nixpkgs`.
+          labels: automated
