@@ -19,15 +19,15 @@ let
 
   hash =
     {
-      x86_64-linux = "sha256-ODQKFjBa2riJY26aPaAfLzuCyLYkB5oYSxIE28nMmwY=";
-      aarch64-linux = "sha256-CYHoTw6JUyU63iTd9tAbfWVnb48WcZgGtjthqnlAD8I=";
+      x86_64-linux = "sha256-Gk9Swdk6jDoN8UzmdPnoslzrvN+7H5y//HPeB5GqEY8=";
+      aarch64-linux = "sha256-FidQCvoZb6n+nNBs2y+1UYJQ1bQeeD6wzpw98UJyWeU=";
     }
     .${system} or throwSystem;
 in
 mkFranzDerivation rec {
   pname = "ferdium";
   name = "Ferdium";
-  version = "7.1.2";
+  version = "7.2.0";
   src = fetchurl {
     url = "https://github.com/ferdium/ferdium-app/releases/download/v${version}/Ferdium-linux-${version}-${arch}.deb";
     inherit hash;
